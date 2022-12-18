@@ -1,0 +1,21 @@
+- name: Deleting old log files
+  hosts: all
+  become: yes
+  
+  vars:
+    age: 5d
+    path: /var/log/
+
+  tasks:
+    - name: Find files older than-"{{ age }}"
+      find:
+        paths: "{{ path }}"
+        age: "{{ age }}"
+        recurse: yes
+      register: oldfiles
+    
+    - name: Deleting old files
+      with_items: "{{ oldfiles.files }}"
+      file:
+        path: "{{ item.path }}" 
+        state: absent
